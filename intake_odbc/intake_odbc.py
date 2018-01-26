@@ -35,6 +35,9 @@ class ODBCSource(base.DataSource):
     head_rows: int (10)
         Number of rows that are read from the start of the data to infer data
         types upon discovery
+    mssql: bool (False)
+        Whether to use MS SQL Server syntax - depends on the backend target of
+        the connection
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
@@ -48,6 +51,7 @@ class ODBCSource(base.DataSource):
         self._uri = uri
         self._sql_expr = sql_expr
         self._head_rows = odbc_kwargs.pop('head_rows', 10)
+        self._ms = odbc_kwargs.pop('mssql', False)
         self._odbc_kwargs = odbc_kwargs
         self._dataframe = None
         self._connection = None
@@ -61,11 +65,11 @@ class ODBCSource(base.DataSource):
             self._connection = connect(**self._odbc_kwargs)
             cursor = self._connection.cursor()
             self._cursor = cursor
-            # This approach is not optimal; LIMIT is know to confuse the query
-            # planner sometimes. If there is a faster approach to gleaning
-            # dtypes from arbitrary SQL queries, we should use it instead.
-            cursor.execute("SELECT TOP {} sq.* FROM ({}) sq".format(
-                self._head_rows, self._sql_expr))
+            if self._ms:
+                q = ms_limit(self._sql_expr, self._head_rows)
+            else:
+                q = limit(self._sql_expr, self._head_rows)
+            cursor.execute(q)
             head = cursor.fetchallarrow().to_pandas()
             dtype = head[:0]
             shape = (None, head.shape[1])
@@ -87,3 +91,13 @@ class ODBCSource(base.DataSource):
 
     def _close(self):
         self._dataframe = None
+
+
+def ms_limit(q, lim):
+    """MS SQL Server implementation of 'limit'"""
+    return "SELECT TOP {} sq.* FROM ({}) sq".format(lim, q)
+
+
+def limit(q, lim):
+    """Non-MS SQL Server implementation of 'limit'"""
+    return "SELECT sq.* FROM ({}) sq LIMIT {}".format(q, lim)

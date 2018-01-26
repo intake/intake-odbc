@@ -21,7 +21,8 @@ def test_minimal():
     q = 'SELECT session_id, blocking_session_id FROM sys.dm_exec_requests'
     s = odbc.ODBCSource(
         uri=None, sql_expr=q,
-        odbc_kwargs=dict(dsn="MSSQL", uid='sa', pwd='yourStrong(!)Password'),
+        odbc_kwargs=dict(
+            dsn="MSSQL", uid='sa', pwd='yourStrong(!)Password', mssql=True),
         metadata={})
     disc = s.discover()
     assert list(disc['dtype']) == ['session_id', 'blocking_session_id']
