@@ -29,6 +29,24 @@ def test_minimal():
     data = s.read()
     assert len(data)
 
+
+def test_part_minimal():
+    q = 'SELECT session_id, blocking_session_id FROM sys.dm_exec_requests'
+    s = odbc.ODBCPartitionedSource(
+        uri=None, sql_expr=q,
+        odbc_kwargs=dict(
+            dsn="MSSQL", uid='sa', pwd='yourStrong(!)Password', mssql=True,
+            index='session_id', npartitions=2),
+        metadata={})
+    disc = s.discover()
+    assert list(disc['dtype']) == ['session_id', 'blocking_session_id']
+    assert s.npartitions == 2
+    data = s.read()
+    assert len(data)
+    part1, part2 = s.read_partition(0), s.read_partition(1)
+    assert data.equals(pd.concat([part1, part2], ignore_index=True))
+
+
 # @pytest.fixture(scope='module')
 # def engine():
 #     """Start docker container for ODBC database, yield a tuple (engine,
