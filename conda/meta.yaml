@@ -16,6 +16,9 @@ requirements:
   run:
     - python
     - intake
+    - turbodbc
+    - pyarrow
+    - pandas
 
 test:
   source_files:
@@ -24,7 +27,6 @@ test:
     - pytest
     - pytest-cov
     - coverage
-    - sqlalchemy
   commands:
     - py.test --verbose --cov=intake_odbc tests
 
