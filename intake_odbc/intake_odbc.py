@@ -64,8 +64,8 @@ class ODBCSource(base.DataSource):
             # This approach is not optimal; LIMIT is know to confuse the query
             # planner sometimes. If there is a faster approach to gleaning
             # dtypes from arbitrary SQL queries, we should use it instead.
-            cursor.execute("SELECT * FROM ({}) LIMIT {}".format(
-                self._sql_expr, self._head_rows))
+            cursor.execute("SELECT TOP {} sq.* FROM ({}) sq".format(
+                self._head_rows, self._sql_expr))
             head = cursor.fetchallarrow().to_pandas()
             dtype = head[:0]
             shape = (None, head.shape[1])
