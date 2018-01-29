@@ -50,3 +50,53 @@ def stop_mssql(let_fail=False):
         print(e)
         if not let_fail:
             raise
+
+
+def start_postgres():
+    """Bring up a container running PostgreSQL with PostGIS. Pipe the output of
+    the container process to stdout, until the database is ready to accept
+    connections. This container may be stopped with ``stop_postgres()``.
+    """
+    # copied from intake-postgres
+    print('Starting PostgreSQL server...')
+
+    # More options here: https://github.com/appropriate/docker-postgis
+    cmd = shlex.split('docker run --rm --name intake-postgres --publish 5432:5432 '
+                      'mdillon/postgis:9.4-alpine')
+    proc = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            universal_newlines=True)
+
+    # The database may have been restarted in the container, so track whether
+    # initialization happened or not.
+    pg_init = False
+    while True:
+        output_line = proc.stdout.readline()
+        print(output_line.rstrip())
+        # If the process exited, raise exception.
+        if proc.poll() is not None:
+            raise Exception('PostgreSQL server failed to start up properly.')
+        # Detect when initialization has happened, so we can stop waiting when
+        # the database is accepting connections.
+        if ('PostgreSQL init process complete; '
+                'ready for start up') in output_line:
+            pg_init = True
+        elif (pg_init and
+              'database system is ready to accept connections' in output_line):
+            break
+
+
+def stop_postgres(let_fail=False):
+    """Attempt to shut down the container started by ``start_postgres()``.
+    Raise an exception if this operation fails, unless ``let_fail``
+    evaluates to True.
+    """
+    # copied from intake-postgres
+    try:
+        print('Stopping PostgreSQL server...')
+        subprocess.check_call('docker ps -q --filter "name=intake-postgres" | '
+                              'xargs docker rm -vf', shell=True)
+    except subprocess.CalledProcessError:
+        if not let_fail:
+            raise
