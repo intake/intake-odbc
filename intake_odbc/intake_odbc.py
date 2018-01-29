@@ -42,6 +42,7 @@ class ODBCSource(base.DataSource):
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
+        odbc_kwargs = odbc_kwargs.copy()
         self._init_args = {
             'uri': uri,
             'sql_expr': sql_expr,
@@ -154,6 +155,7 @@ class ODBCPartitionedSource(base.DataSource):
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
+        odbc_kwargs = odbc_kwargs.copy()
         self._init_args = {
             'uri': uri,
             'sql_expr': sql_expr,
@@ -171,7 +173,6 @@ class ODBCPartitionedSource(base.DataSource):
         self._npartitions = odbc_kwargs.pop('npartitions', None)
         self._divisions = odbc_kwargs.pop('divisions', None)
         self._odbc_kwargs = odbc_kwargs
-        self._dataframe = None
         self._connection = None
         self._cursor = None
 
@@ -219,5 +220,7 @@ class ODBCPartitionedSource(base.DataSource):
         return df
 
     def _close(self):
+        if self._connection is not None:
+            self._connection.close()
         self._connection = None
         self._cursor = None

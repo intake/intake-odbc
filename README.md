@@ -32,7 +32,7 @@ python setup.py develop --no-deps
 docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Strong(!)Password' \
     -p 1433:1433 -d microsoft/mssql-server-linux:2017-CU3
 # log in as system admin
-docker exec -it bec9997933fb /opt/mssql-tools/bin/sqlcmd -S localhost \
+docker exec -it <container> /opt/mssql-tools/bin/sqlcmd -S localhost \
     -U sa -P 'Strong(!)Password'
 # create database
 1> CREATE DATABASE test
