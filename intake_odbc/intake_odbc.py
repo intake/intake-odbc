@@ -3,9 +3,9 @@ from turbodbc import connect
 import numpy as np
 
 
-class UPPlugin(base.Plugin):
+class ODBCPlugin(base.Plugin):
     def __init__(self):
-        super(UPPlugin, self).__init__(name='odbc',
+        super(ODBCPlugin, self).__init__(name='odbc',
                                        version='0.1',
                                        container='dataframe',
                                        partition_access=False)
@@ -107,9 +107,9 @@ def limit(q, lim):
     return "SELECT sq.* FROM ({}) sq LIMIT {}".format(q, lim)
 
 
-class PPlugin(base.Plugin):
+class ODBCPartPlugin(base.Plugin):
     def __init__(self):
-        super(PPlugin, self).__init__(name='odbc_partitioned',
+        super(ODBCPartPlugin, self).__init__(name='odbc_partitioned',
                                       version='0.1',
                                       container='dataframe',
                                       partition_access=False)
