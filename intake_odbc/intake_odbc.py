@@ -64,7 +64,8 @@ class ODBCSource(base.DataSource):
 
     def _get_schema(self):
         if self._dataframe is None:
-            self._connection = connect(**self._odbc_kwargs)
+            self._connection = connect(connection_string=self._uri,
+                                       **self._odbc_kwargs)
             cursor = self._connection.cursor()
             self._cursor = cursor
             if self._ms:
@@ -110,9 +111,9 @@ def limit(q, lim):
 class ODBCPartPlugin(base.Plugin):
     def __init__(self):
         super(ODBCPartPlugin, self).__init__(name='odbc_partitioned',
-                                      version='0.1',
-                                      container='dataframe',
-                                      partition_access=False)
+                                             version='0.1',
+                                             container='dataframe',
+                                             partition_access=True)
 
     def open(self, uri, sql_expr, **kwargs):
         """
@@ -180,7 +181,8 @@ class ODBCPartitionedSource(base.DataSource):
                                                     metadata=metadata)
 
     def _get_schema(self):
-        self._connection = connect(**self._odbc_kwargs)
+        self._connection = connect(connection_string=self._uri,
+                                   **self._odbc_kwargs)
         cursor = self._connection.cursor()
         self._cursor = cursor
         if self._ms:

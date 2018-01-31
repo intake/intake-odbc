@@ -1,7 +1,18 @@
-import requests
+from collections import OrderedDict
+import numpy as np
+import pandas as pd
+import pytest
 import shlex
 import subprocess
 import time
+import turbodbc
+
+N = 10000
+df0 = pd.DataFrame(OrderedDict([('productname', np.random.choice(
+    ['fridge', 'toaster', 'kettle', 'micro', 'mixer', 'oven'], size=N)),
+                                ('price', np.random.rand(N) * 10),
+                                ('productdescription', ["hi"] * N)]))
+df0.index.name = 'productid'
 
 
 def verify_plugin_interface(plugin):
@@ -38,10 +49,20 @@ def start_mssql():
     subprocess.check_output(cmd)
 
 
-def stop_mssql(let_fail=False):
+def stop_docker(name, let_fail=False):
+    """Stop docker container with given name tag
+
+    Parameters
+    ----------
+    name: str
+        name field which has been attached to the container we wish to remove
+    let_fail: bool
+        whether to raise an exception if the underlying commands return an
+        error.
+    """
     try:
-        print('Stopping MS SQL Server...')
-        cmd = shlex.split('docker ps -q --filter "name=intake-mssql"')
+        print('Stopping %s ...' % name)
+        cmd = shlex.split('docker ps -q --filter "name=%s"' % name)
         cid = subprocess.check_output(cmd).strip().decode()
         if cid:
             subprocess.call(['docker', 'kill', cid])
@@ -55,7 +76,7 @@ def stop_mssql(let_fail=False):
 def start_postgres():
     """Bring up a container running PostgreSQL with PostGIS. Pipe the output of
     the container process to stdout, until the database is ready to accept
-    connections. This container may be stopped with ``stop_postgres()``.
+    connections. This container may be stopped with ``stop_docker()``.
     """
     # copied from intake-postgres
     print('Starting PostgreSQL server...')
@@ -87,16 +108,75 @@ def start_postgres():
             break
 
 
-def stop_postgres(let_fail=False):
-    """Attempt to shut down the container started by ``start_postgres()``.
-    Raise an exception if this operation fails, unless ``let_fail``
-    evaluates to True.
-    """
-    # copied from intake-postgres
+@pytest.fixture(scope='module')
+def mssql():
+    """Start docker container for MS SQL and cleanup connection afterward."""
+    stop_docker('intake-mssql', let_fail=False)
+    start_mssql()
+
+    kwargs = dict(dsn="MSSQL", uid='sa', pwd='yourStrong(!)Password',
+                  mssql=True)
+    timeout = 5
     try:
-        print('Stopping PostgreSQL server...')
-        subprocess.check_call('docker ps -q --filter "name=intake-postgres" | '
-                              'xargs docker rm -vf', shell=True)
-    except subprocess.CalledProcessError:
-        if not let_fail:
-            raise
+        while True:
+            try:
+                conn = turbodbc.connect(**kwargs)
+                break
+            except Exception as e:
+                print(e)
+                time.sleep(0.2)
+                timeout -= 0.2
+                if timeout < 0:
+                    raise
+        curs = conn.cursor()
+        curs.execute("""CREATE TABLE testtable
+            (productid int PRIMARY KEY NOT NULL,  
+             productname varchar(25) NOT NULL,  
+             price float NULL,  
+             productdescription text NULL)""")
+        for i, row in df0.iterrows():
+            curs.execute(
+                "INSERT testtable (productid, productname, price, "
+                "                  productdescription) "
+                "VALUES ({}, '{}', {}, '{}')".format(*([i] + row.tolist())))
+        conn.commit()
+        conn.close()
+        yield kwargs
+    finally:
+        stop_docker('intake-mssql')
+
+
+@pytest.fixture(scope='module')
+def pg():
+    """Start docker container for MS SQL and cleanup connection afterward."""
+    stop_docker('intake-postgres', let_fail=False)
+    start_postgres()
+
+    kwargs = dict(dsn="PG")
+    timeout = 5
+    try:
+        while True:
+            try:
+                conn = turbodbc.connect(**kwargs)
+                break
+            except Exception as e:
+                print(e)
+                time.sleep(0.2)
+                timeout -= 0.2
+                if timeout < 0:
+                    raise
+        curs = conn.cursor()
+        curs.execute("""CREATE TABLE testtable
+            (productid int PRIMARY KEY NOT NULL,
+             productname varchar(25) NOT NULL,
+             price float NULL,
+             productdescription text NULL)""")
+        for i, row in df0.iterrows():
+            curs.execute(
+                "INSERT INTO testtable "
+                "VALUES ({}, '{}', {}, '{}')".format(*([i] + row.tolist())))
+        conn.commit()
+        conn.close()
+        yield kwargs
+    finally:
+        stop_docker('intake-postgres')
