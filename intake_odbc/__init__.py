@@ -1,8 +1,6 @@
-from ._version import get_versions
 from .intake_odbc import ODBCSource, ODBCPartitionedSource, base
 
-__version__ = get_versions()['version']
-del get_versions
+__version__ = '0.0.1'
 
 
 class ODBCPlugin(base.Plugin):
