@@ -14,6 +14,7 @@ setup(
     maintainer_email='sseibert@anaconda.com',
     license='BSD',
     py_modules=['intake_odbc'],
+    packages=['intake_odbc'],
     package_data={'': ['*.csv', '*.yml', '*.html']},
     include_package_data=True,
     install_requires=requires,
