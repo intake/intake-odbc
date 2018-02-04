@@ -1,2 +1,4 @@
 intake
-sqlalchemy
+turbodbc
+pyarrow
+pandas
