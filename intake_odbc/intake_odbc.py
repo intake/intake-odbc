@@ -146,7 +146,7 @@ class ODBCPartitionedSource(base.DataSource):
         else:
             q = limit(self._sql_expr, self._head_rows)
         cursor.execute(q)
-        head = cursor.fetchallarrow().to_pandas()
+        head = cursor.fetchallarrow().to_pandas().set_index(self._index)
         dtype = head[:0]
         shape = (None, head.shape[1])  # could have called COUNT()
         nparts = self._npartitions or len(self._divisions)
@@ -175,7 +175,7 @@ class ODBCPartitionedSource(base.DataSource):
                 exp=self._sql_expr, ind=self._index, mi=mi, ma=ma)
         self._cursor.execute(q)
         df = self._cursor.fetchallarrow().to_pandas()
-        return df
+        return df.set_index(self._index)
 
     def _close(self):
         if self._connection is not None:

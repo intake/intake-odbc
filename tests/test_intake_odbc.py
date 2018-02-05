@@ -29,7 +29,8 @@ def test_mssql_part_minimal(mssql):
         odbc_kwargs=args,
         metadata={})
     disc = s.discover()
-    assert list(disc['dtype']) == ['session_id', 'blocking_session_id']
+    assert list(disc['dtype']) == ['blocking_session_id']
+    assert disc['dtype'].index.name == 'session_id'
     assert s.npartitions == 2
     data = s.read()
     assert len(data)
