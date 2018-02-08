@@ -5,7 +5,7 @@ from .util import mssql, pg, df0
 
 
 here = os.path.dirname(__file__)
-os.environ['ODBCSYSINI'] = os.path.join(here, '..', 'examples')
+os.environ['ODBCSYSINI'] = here
 
 
 def test_mssql_minimal(mssql):
