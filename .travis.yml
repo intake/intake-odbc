@@ -20,6 +20,7 @@ before_script:
     sudo service postgresql stop
 install:
 - |
+  sudo apt-get update
   sudo apt-get install freetds-bin tdsodbc odbc-postgresql libiodbc2 iodbc -y
   echo "Installing a fresh version of Miniconda."
   MINICONDA_URL="https://repo.continuum.io/miniconda"
