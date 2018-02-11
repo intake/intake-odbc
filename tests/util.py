@@ -41,7 +41,7 @@ def start_mssql():
                       "-p 1433:1433 -d microsoft/mssql-server-linux:2017-CU3")
     cid = subprocess.check_output(cmd).strip().decode()
 
-    time.sleep(5)
+    time.sleep(10)
 
     cmd = shlex.split("docker exec {} /opt/mssql-tools/bin/sqlcmd"
                       " -S localhost -U sa -P 'yourStrong(!)Password' "
