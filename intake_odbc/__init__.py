@@ -4,6 +4,10 @@ __version__ = '0.0.1'
 
 
 class ODBCPlugin(base.Plugin):
+    """
+    Read a single ODBC query into a pandas dataframe
+    """
+
     def __init__(self):
         super(ODBCPlugin, self).__init__(name='odbc',
                                          version='0.1',
@@ -12,11 +16,14 @@ class ODBCPlugin(base.Plugin):
 
     def open(self, uri, sql_expr, **kwargs):
         """
-        Parameters:
-            uri : str
-                Full SQLAlchemy URI for the database connection.
-            sql_expr : string or SQLAlchemy Selectable (select or text object):
-                SQL query to be executed.
+        Create ODBCSource for given connection and SQL statement
+
+        Parameters
+        ----------
+        uri : str
+            Full SQLAlchemy URI for the database connection.
+        sql_expr : string or SQLAlchemy Selectable (select or text object):
+            SQL query to be executed.
         """
         base_kwargs, source_kwargs = self.separate_base_kwargs(kwargs)
         return ODBCSource(uri=uri,
@@ -26,6 +33,10 @@ class ODBCPlugin(base.Plugin):
 
 
 class ODBCPartPlugin(base.Plugin):
+    """
+    Read a single ODBC query into dataframe partitions
+    """
+
     def __init__(self):
         super(ODBCPartPlugin, self).__init__(name='odbc_partitioned',
                                              version='0.1',
@@ -34,11 +45,14 @@ class ODBCPartPlugin(base.Plugin):
 
     def open(self, uri, sql_expr, **kwargs):
         """
-        Parameters:
-            uri : str
-                Full SQLAlchemy URI for the database connection.
-            sql_expr : string or SQLAlchemy Selectable (select or text object):
-                SQL query to be executed.
+        Create ODBCPartitionedSource for given connection and SQL statement
+
+        Parameters
+        ----------
+        uri : str
+            Full SQLAlchemy URI for the database connection.
+        sql_expr : string or SQLAlchemy Selectable (select or text object):
+            SQL query to be executed.
         """
         base_kwargs, source_kwargs = self.separate_base_kwargs(kwargs)
         return ODBCPartitionedSource(uri=uri,
