@@ -5,18 +5,25 @@ import numpy as np
 
 class ODBCSource(base.DataSource):
     """
-    Options [docs](http://turbodbc.readthedocs.io/en/latest/pages/advanced_usage.html#advanced-usage)
-
-    Connection string [docs](http://turbodbc.readthedocs.io/en/latest/pages/getting_started.html#establish-a-connection-with-your-database)
+    One-shot ODBC to dataframe reader
 
     Parameters
     ----------
-    head_rows: int (10)
-        Number of rows that are read from the start of the data to infer data
-        types upon discovery
-    mssql: bool (False)
-        Whether to use MS SQL Server syntax - depends on the backend target of
-        the connection
+    uri: str or None
+        Full connection string for TurbODBC. If using keyword parameters, this
+        should be ``None``
+    sql_expr: str
+        Query expression to pass to the DB backend
+    odbc_kwargs: dict
+        Further connection arguments, such as username/password, and may also
+        include the following:
+
+        head_rows: int (10)
+            Number of rows that are read from the start of the data to infer data
+            types upon discovery
+        mssql: bool (False)
+            Whether to use MS SQL Server syntax - depends on the backend target of
+            the connection
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
@@ -88,27 +95,37 @@ def limit(q, lim):
 
 class ODBCPartitionedSource(base.DataSource):
     """
-    Options [docs](http://turbodbc.readthedocs.io/en/latest/pages/advanced_usage.html#advanced-usage)
+    ODBC partitioned reader
 
-    Connection string [docs](http://turbodbc.readthedocs.io/en/latest/pages/getting_started.html#establish-a-connection-with-your-database)
+    This source produces new queries for each partition, where an index column
+    is used to select rows belonging to each partition
 
     Parameters
     ----------
-    head_rows: int (10)
-        Number of rows that are read from the start of the data to infer data
-        types upon discovery
-    mssql: bool (False)
-        Whether to use MS SQL Server syntax - depends on the backend target of
-        the connection
-    index: str
-        Column to use for partitioning
-    max, min: str
-        Range of values in index to consider (will query DB if not given)
-    npartitions: int
-        Number of partitions to assume
-    divisions: list of values
-        If given, use these as partition boundaries - and therefore ignore max/
-        min and npartitions
+    uri: str or None
+        Full connection string for TurbODBC. If using keyword parameters, this
+        should be ``None``
+    sql_expr: str
+        Query expression to pass to the DB backend
+    odbc_kwargs: dict
+        Further connection arguments, such as username/password, and may also
+        include the following:
+
+        head_rows: int (10)
+            Number of rows that are read from the start of the data to infer data
+            types upon discovery
+        mssql: bool (False)
+            Whether to use MS SQL Server syntax - depends on the backend target of
+            the connection
+        index: str
+            Column to use for partitioning
+        max, min: str
+            Range of values in index to consider (will query DB if not given)
+        npartitions: int
+            Number of partitions to assume
+        divisions: list of values
+            If given, use these as partition boundaries - and therefore ignore max/
+            min and npartitions
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
