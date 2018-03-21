@@ -1,4 +1,6 @@
 # Intake-ODBC
+[![Build Status](https://travis-ci.org/ContinuumIO/intake-odbc.svg?branch=master)](https://travis-ci.org/ContinuumIO/intake-odbc)
+[![Documentation Status](https://readthedocs.org/projects/intake-odbc/badge/?version=latest)](http://intake-odbc.readthedocs.io/en/latest/?badge=latest)
 
 ODBC Plugin for Intake
 
