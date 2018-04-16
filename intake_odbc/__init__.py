@@ -1,6 +1,8 @@
-from .intake_odbc import ODBCSource, ODBCPartitionedSource, base
+from intake.source import base
 
-__version__ = '0.0.1'
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 
 class ODBCPlugin(base.Plugin):
@@ -25,6 +27,7 @@ class ODBCPlugin(base.Plugin):
         sql_expr : string or SQLAlchemy Selectable (select or text object):
             SQL query to be executed.
         """
+        from intake_odbc.intake_odbc import ODBCSource
         base_kwargs, source_kwargs = self.separate_base_kwargs(kwargs)
         return ODBCSource(uri=uri,
                           sql_expr=sql_expr,
@@ -54,6 +57,7 @@ class ODBCPartPlugin(base.Plugin):
         sql_expr : string or SQLAlchemy Selectable (select or text object):
             SQL query to be executed.
         """
+        from intake_odbc.intake_odbc import ODBCPartitionedSource
         base_kwargs, source_kwargs = self.separate_base_kwargs(kwargs)
         return ODBCPartitionedSource(uri=uri,
                                      sql_expr=sql_expr,
