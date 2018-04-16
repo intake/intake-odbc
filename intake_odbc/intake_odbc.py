@@ -19,11 +19,11 @@ class ODBCSource(base.DataSource):
         include the following:
 
         head_rows: int (10)
-            Number of rows that are read from the start of the data to infer data
-            types upon discovery
+            Number of rows that are read from the start of the data to infer
+            data types upon discovery
         mssql: bool (False)
-            Whether to use MS SQL Server syntax - depends on the backend target of
-            the connection
+            Whether to use MS SQL Server syntax - depends on the backend target
+            of the connection
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
@@ -112,11 +112,11 @@ class ODBCPartitionedSource(base.DataSource):
         include the following:
 
         head_rows: int (10)
-            Number of rows that are read from the start of the data to infer data
-            types upon discovery
+            Number of rows that are read from the start of the data to infer
+            data types upon discovery
         mssql: bool (False)
-            Whether to use MS SQL Server syntax - depends on the backend target of
-            the connection
+            Whether to use MS SQL Server syntax - depends on the backend target
+            of the connection
         index: str
             Column to use for partitioning
         max, min: str
@@ -124,8 +124,8 @@ class ODBCPartitionedSource(base.DataSource):
         npartitions: int
             Number of partitions to assume
         divisions: list of values
-            If given, use these as partition boundaries - and therefore ignore max/
-            min and npartitions
+            If given, use these as partition boundaries - and therefore ignore
+            max/min and npartitions
     """
 
     def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
@@ -179,7 +179,8 @@ class ODBCPartitionedSource(base.DataSource):
             if self._max is None:
                 # get data boundaries from DB
                 q = "SELECT MAX(sq.{ind}) as ma, MIN(sq.{ind}) as mi " \
-                    "FROM ({exp}) sq".format(ind=self._index, exp=self._sql_expr)
+                    "FROM ({exp}) sq".format(ind=self._index,
+                                             exp=self._sql_expr)
                 self._cursor.execute(q)
                 self._max, self._min = self._cursor.fetchone()
                 self._max += 0.001

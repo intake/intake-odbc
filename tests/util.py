@@ -82,8 +82,8 @@ def start_postgres():
     print('Starting PostgreSQL server...')
 
     # More options here: https://github.com/appropriate/docker-postgis
-    cmd = shlex.split('docker run --rm --name intake-postgres --publish 5432:5432 '
-                      'mdillon/postgis:9.4-alpine')
+    cmd = shlex.split('docker run --rm --name intake-postgres '
+                      '--publish 5432:5432 mdillon/postgis:9.4-alpine')
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
@@ -130,9 +130,9 @@ def mssql():
                     raise
         curs = conn.cursor()
         curs.execute("""CREATE TABLE testtable
-            (productid int PRIMARY KEY NOT NULL,  
-             productname varchar(25) NOT NULL,  
-             price float NULL,  
+            (productid int PRIMARY KEY NOT NULL,
+             productname varchar(25) NOT NULL,
+             price float NULL,
              productdescription text NULL)""")
         for i, row in df0.iterrows():
             curs.execute(
