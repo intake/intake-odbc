@@ -4,19 +4,19 @@ API Reference
 .. currentmodule:: intake_odbc
 
 .. autosummary::
-   ODBCPlugin
-   ODBCPartPlugin
-   ODBCSource
-   ODBCPartitionedSource
+   intake_odbc.ODBCPlugin
+   intake_odbc.ODBCPartPlugin
+   intake_odbc.intake_odbc.ODBCSource
+   intake_odbc.intake_odbc.ODBCPartitionedSource
 
-.. autoclass:: ODBCPlugin
+.. autoclass:: intake_odbc.ODBCPlugin
    :members:
 
-.. autoclass:: ODBCPartPlugin
+.. autoclass:: intake_odbc.ODBCPartPlugin
    :members:
 
-.. autoclass:: ODBCSource
+.. autoclass:: intake_odbc.intake_odbc.ODBCSource
    :members:
 
-.. autoclass:: ODBCPartitionedSource
+.. autoclass:: intake_odbc.intake_odbc.ODBCPartitionedSource
    :members:
