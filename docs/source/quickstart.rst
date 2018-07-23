@@ -81,13 +81,7 @@ Further arguments when using partitioning:
 Creating Catalog Entries
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To include in a catalog, the plugin must be listed in the plugins of the catalog::
-
-   plugins:
-     source:
-       - module: intake_odbc
-
-and entries must specify ``driver: odbc`` or ``driver: odbc_partioned``.
+To us in a catalog entries must specify ``driver: odbc`` or ``driver: odbc_partioned``.
 Further arguments should be provided, as for the ``intake.open_*`` ad-hoc
 commands, above. In particular, the connection parameters and query string
 are required, and also the index column, if using partitioning.
@@ -95,7 +89,7 @@ are required, and also the index column, if using partitioning.
 It should be noted that SQL query strings are generally quite long; the appropriate
 syntax may look like::
 
-     - name: product_types
+     product_types:
         description: Randomly generated data
         driver: odbc_partitioned
         args:
