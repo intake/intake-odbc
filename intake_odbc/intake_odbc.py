@@ -69,6 +69,7 @@ class ODBCSource(base.DataSource):
                            extra_metadata={})
 
     def _get_partition(self, _):
+        self._get_schema()
         if self._dataframe is None:
             self._cursor.execute(self._sql_expr)
             self._dataframe = self._cursor.fetchallarrow().to_pandas()
