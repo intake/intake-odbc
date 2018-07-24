@@ -1,6 +1,6 @@
 from intake.source import base
-from turbodbc import connect
 import numpy as np
+from . import __version__
 
 
 class ODBCSource(base.DataSource):
@@ -14,9 +14,9 @@ class ODBCSource(base.DataSource):
         should be ``None``
     sql_expr: str
         Query expression to pass to the DB backend
-    odbc_kwargs: dict
-        Further connection arguments, such as username/password, and may also
-        include the following:
+
+    Further connection arguments, such as username/password, and may also
+    include the following:
 
         head_rows: int (10)
             Number of rows that are read from the start of the data to infer
@@ -25,16 +25,13 @@ class ODBCSource(base.DataSource):
             Whether to use MS SQL Server syntax - depends on the backend target
             of the connection
     """
+    name = 'odbc'
+    version = __version__
+    container = 'dataframe'
+    partition_access = False
 
-    def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
+    def __init__(self, uri, sql_expr, metadata=None, **odbc_kwargs):
         odbc_kwargs = odbc_kwargs.copy()
-        self._init_args = {
-            'uri': uri,
-            'sql_expr': sql_expr,
-            'odbc_kwargs': odbc_kwargs,
-            'metadata': metadata,
-        }
-
         self._uri = uri
         self._sql_expr = sql_expr
         self._head_rows = odbc_kwargs.pop('head_rows', 10)
@@ -44,10 +41,10 @@ class ODBCSource(base.DataSource):
         self._connection = None
         self._cursor = None
 
-        super(ODBCSource, self).__init__(container='dataframe',
-                                         metadata=metadata)
+        super(ODBCSource, self).__init__(metadata=metadata)
 
     def _get_schema(self):
+        from turbodbc import connect
         if self._dataframe is None:
             self._connection = connect(connection_string=self._uri,
                                        **self._odbc_kwargs)
@@ -62,7 +59,8 @@ class ODBCSource(base.DataSource):
             dtype = head[:0]
             shape = (None, head.shape[1])
         else:
-            dtype = self._dataframe[:0]
+            dtype = {k: str(v) for k, v
+                     in self._dataframe.dtypes.to_dict().items()}
             shape = self._dataframe.shape
         return base.Schema(datashape=None,
                            dtype=dtype,
@@ -71,6 +69,7 @@ class ODBCSource(base.DataSource):
                            extra_metadata={})
 
     def _get_partition(self, _):
+        self._get_schema()
         if self._dataframe is None:
             self._cursor.execute(self._sql_expr)
             self._dataframe = self._cursor.fetchallarrow().to_pandas()
@@ -107,9 +106,9 @@ class ODBCPartitionedSource(base.DataSource):
         should be ``None``
     sql_expr: str
         Query expression to pass to the DB backend
-    odbc_kwargs: dict
-        Further connection arguments, such as username/password, and may also
-        include the following:
+
+    Further connection arguments, such as username/password, and may also
+    include the following:
 
         head_rows: int (10)
             Number of rows that are read from the start of the data to infer
@@ -127,16 +126,13 @@ class ODBCPartitionedSource(base.DataSource):
             If given, use these as partition boundaries - and therefore ignore
             max/min and npartitions
     """
+    name = 'odbc'
+    version = __version__
+    container = 'dataframe'
+    partition_access = True
 
-    def __init__(self, uri, sql_expr, odbc_kwargs, metadata):
+    def __init__(self, uri, sql_expr, metadata=None, **odbc_kwargs):
         odbc_kwargs = odbc_kwargs.copy()
-        self._init_args = {
-            'uri': uri,
-            'sql_expr': sql_expr,
-            'odbc_kwargs': odbc_kwargs,
-            'metadata': metadata,
-        }
-
         self._uri = uri
         self._sql_expr = sql_expr
         self._head_rows = odbc_kwargs.pop('head_rows', 10)
@@ -150,10 +146,10 @@ class ODBCPartitionedSource(base.DataSource):
         self._connection = None
         self._cursor = None
 
-        super(ODBCPartitionedSource, self).__init__(container='dataframe',
-                                                    metadata=metadata)
+        super(ODBCPartitionedSource, self).__init__(metadata=metadata)
 
     def _get_schema(self):
+        from turbodbc import connect
         self._connection = connect(connection_string=self._uri,
                                    **self._odbc_kwargs)
         cursor = self._connection.cursor()
