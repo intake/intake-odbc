@@ -16,6 +16,10 @@ setup(
     license='BSD',
     py_modules=['intake_odbc'],
     packages=['intake_odbc'],
+    entry_points={
+        'intake.drivers': [
+	    'odbc = intake_odbc.intake_odbc:ODBCPartitionedSource',
+	]},
     package_data={'': ['*.csv', '*.yml', '*.html']},
     include_package_data=True,
     install_requires=requires,
