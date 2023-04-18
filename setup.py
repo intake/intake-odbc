@@ -20,9 +20,10 @@ setup(
         'intake.drivers': [
 	    'odbc = intake_odbc.intake_odbc:ODBCPartitionedSource',
 	]},
-    package_data={'': ['*.csv', '*.yml', '*.html']},
+    package_data={'': ['*.csv', '*.yml', '*.html', '*.txt']},
     include_package_data=True,
     install_requires=requires,
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     zip_safe=False,
 )
